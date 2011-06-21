@@ -30,7 +30,8 @@
 
 
 def check_OS()
-  if ENV['OS'] == "WINDOWS_NT"
+  puts ENV['OS'] 
+  if ENV['OS'] == "Windows_NT"
     @system = :windows
     return
   end
@@ -43,7 +44,7 @@ end
 
 def is_jboss_running?
   if @system == :windows
-    result = `#{@jboss_home}\\bin\\twiddle.sh -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`
+    result = `#{@jboss_home}\\bin\\twiddle.bat -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`
   end
   if @system == :linux  
     result = `#{@jboss_home}/bin/twiddle.sh -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`
@@ -71,12 +72,13 @@ def start_the_boss
     puts "       The Boss is playing!!"
     end
     if @system == :windows
-      `#{@jboss_home}bin\\run.bat -c #{@instance_name} -b #{@ip} -Djboss.service.binding.set=#{@ports_binding} >> #{@jboss_home}bin\start_stop.log& `
-    
-      while status.strip != "Started=true"
+      
+	  `start #{@jboss_home}bin\\run.vbs #{@instance_name} #{@ip} #{@ports_binding} `
+      puts "test"
+	  while status.strip != "Started=true"
         status = `#{@jboss_home}\\bin\\twiddle.bat -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`	
-	puts "Server is still warming up"
-	sleep 5 
+	    puts "Server is still warming up"
+	    sleep 5 
       end
     end
   end 
@@ -90,7 +92,8 @@ def stop_the_boss
       puts "The Boss is done!!"
     end
     if @system == :windows
-    
+      ` start #{@jboss_home}\\bin\\shutdown.bat -u #{@jmx_user} -p #{@jmx_password} --server=#{@ip}:#{@jndi_port}  >> #{@jboss_home}\\bin\\start_stop.log `
+	  puts "The Boss is done!!"
     end
   end
 end
@@ -136,10 +139,3 @@ elsif @method == "stop"
 else
   print_help 
 end
-
-
-
-	
-	 
-
-
