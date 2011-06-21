@@ -43,7 +43,7 @@ end
 
 def is_jboss_running?
   if @system == :windows
-    result = `#{@jboss_home}\bin\twiddle.bat -s #{@ip}:`
+    result = `#{@jboss_home}\\bin\\twiddle.sh -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`
   end
   if @system == :linux  
     result = `#{@jboss_home}/bin/twiddle.sh -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`
@@ -68,10 +68,16 @@ def start_the_boss
 	puts "Server is still warming up"
 	sleep 5 
       end
-    puts "The Boss is playing!!"
+    puts "       The Boss is playing!!"
     end
     if @system == :windows
-      `#{@jboss_home}bin\run.bat -c #{@instance_name} -b #{@ip} -Djboss.service.binding.set=#{@ports_binding} >> #{@jboss_home}bin\start_stop.log& `
+      `#{@jboss_home}bin\\run.bat -c #{@instance_name} -b #{@ip} -Djboss.service.binding.set=#{@ports_binding} >> #{@jboss_home}bin\start_stop.log& `
+    
+      while status.strip != "Started=true"
+        status = `#{@jboss_home}\\bin\\twiddle.bat -s #{@ip}:#{@jndi_port} -u #{@jmx_user} -p #{@jmx_password} get "jboss.system:type=Server" Started`	
+	puts "Server is still warming up"
+	sleep 5 
+      end
     end
   end 
 end
@@ -81,13 +87,7 @@ def stop_the_boss
     puts "Stopping the Boss"
     if @system == :linux
       `#{@jboss_home}bin/shutdown.sh -u #{@jmx_user} -p #{@jmx_password} --server=#{@ip}:#{@jndi_port}  >> #{@jboss_home}bin/start_stop.log& `
-
-     
-    
-   
-  
- 
-    puts "The Boss is done!!"
+      puts "The Boss is done!!"
     end
     if @system == :windows
     
@@ -97,7 +97,7 @@ end
 
 def print_help
     puts
-    puts "      Usage start_stop.rb {start|stop} INSTANCE_NAME IP PORTS_BINDING JMX_USER JMX_PASSWORD"
+    puts "      Usage start_stop.rb {start|stop} INSTANCE_NAME IP PORTS_BINDING JGROUP JMX_USER JMX_PASSWORD"
     puts
 end
 
